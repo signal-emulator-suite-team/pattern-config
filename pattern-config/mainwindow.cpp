@@ -7,7 +7,25 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    connect(this,&MainWindow::sendColorFileUrl, this, &MainWindow::showColor);
+    this->setWindowTitle("pattern-config - "+m_fileUrl+" - R:"+ QString::number(m_color.red())+",G:"+ QString::number(m_color.green())+",B:"+ QString::number(m_color.blue())+",A:"+ QString::number(m_color.alpha()));
+    ui->dockWidget->setWindowTitle("Region Info");
+    ui->label_category->setText("");
+    ui->label_dir->setText("");
+    ui->label_index->setText("");
+    ui->label_color->setText("");
+
+    m_color = QColor(191, 191, 191, 60);
+
+    colorDialog = new ColorDialog;
+    configFileDialog = new ConfigFileDialog;
+    readConfigFile = new ReadConfigFile;
+    imageviewer = new ImageViewer(this);
+
+    ui->horizontalLayout->addWidget(imageviewer);
+    imageviewer->hide();
+
+    connect(colorDialog, SIGNAL(sendColor(QColor)),this, SLOT(updateColor(QColor)));
+    connect(configFileDialog, SIGNAL(sendFileUrl(QString)),this, SLOT(updateFileUrl(QString)));
 }
 
 MainWindow::~MainWindow()
@@ -15,109 +33,94 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
-void MainWindow::on_pushButton_clicked()
+void MainWindow::updateColor(QColor color)
 {
-    QString colorFileUrl = QFileDialog::getOpenFileName(this,"选择颜色文件","D:/QtCode/signal-emulator-suite-team/pattern-config");
-
-    ui->lineEdit->setText(colorFileUrl);
-
-    emit sendColorFileUrl(colorFileUrl);
+    m_color = color;
+    this->setWindowTitle("pattern-config - "+m_fileUrl+" - R:"+ QString::number(m_color.red())+",G:"+ QString::number(m_color.green())+",B:"+ QString::number(m_color.blue())+",A:"+ QString::number(m_color.alpha()));
+    updatePicture();
 }
 
-void MainWindow::showColor(QString colorFIleUrl)
+void MainWindow::updateFileUrl(QString fileUrl)
 {
-    QImage* img=new QImage;
-
-    if(!(img->load(colorFIleUrl))) //加载图像
-    {
-        QMessageBox::information(this,tr("打开图像失败"),tr("打开图像失败!"));
-        delete img;
-        return;
-    }
-
-    QImage tmpImg = img->scaled(ui->label->width(),ui->label->height());
-    QPixmap pixmap=QPixmap::fromImage(tmpImg);
-    ui->label->setPixmap(pixmap);
+    m_fileUrl = fileUrl;
+    this->setWindowTitle("pattern-config - "+m_fileUrl+" - R:"+ QString::number(m_color.red())+",G:"+ QString::number(m_color.green())+",B:"+ QString::number(m_color.blue())+",A:"+ QString::number(m_color.alpha()));
+    updatePicture();
 }
 
-void MainWindow::on_pushButton_2_clicked()
+void MainWindow::updatePicture()
 {
-    QString colorFileUrl = ui->lineEdit->text();
-
-    QStringList list1 = colorFileUrl.split("/");
-
-    QString fileName = list1[list1.size()-1];
-
-    QStringList list2 = fileName.split(".");
-
-    QString colorName = list2[0];
-
-    QString outPath = "D:/QtCode/signal-emulator-suite-team/pattern-config/output/" + colorName;
-    QString bmp1Path = outPath+"/P12L-RCL";
-    QString bmp2Path = outPath+"/P12L-CHL";
-
-    QDir dir(outPath);
-    if(!dir.exists())
+    if (m_fileUrl == "")
     {
-       dir.mkdir(outPath);
-    }
+        QMessageBox::warning(this, "警告", "文件路径不能为空");
 
-    dir.setPath(bmp1Path);
-    if(!dir.exists())
-    {
-       dir.mkdir(bmp1Path);
-    }
-
-    dir.setPath(bmp2Path);
-    if(!dir.exists())
-    {
-       dir.mkdir(bmp2Path);
-    }
-
-
-    QImage* lastImg = new QImage;
-    QImage* fullImg = new QImage;
-    QString lastImgUrl = "D:/QtCode/signal-emulator-suite-team/pattern-config/P12L-RCL.bmp";
-    QString fullImgUrl = colorFileUrl;
-
-    if(!(lastImg->load(lastImgUrl))) //加载图像
-    {
-        QMessageBox::information(this,tr("打开图像失败"),tr("打开图像失败!"));
-        delete lastImg;
         return;
     }
 
-    if(!(fullImg->load(fullImgUrl))) //加载图像
+    rectItemList.clear();
+
+    Config config = readConfigFile->getConfig(m_fileUrl);
+
+    QPixmap mapImg(config.imageFile);
+    imageviewer->setPixmap(mapImg);
+
+    for (int i=0; i<config.regions.size(); i++)
     {
-        QMessageBox::information(this,tr("打开图像失败"),tr("打开图像失败!"));
-        delete fullImg;
-        return;
+        rectItem = createMyRectItem(config.regions[i], m_color,config.regions[i].roi[0],config.regions[i].roi[1],config.regions[i].roi[2],config.regions[i].roi[3]);
+        rectItemList.append(rectItem);
     }
 
-    QImage tmpImg = fullImg->scaled(4,17);
-
-    QPainter painter;
-    painter.begin(lastImg);
-    painter.drawImage(0, 0, tmpImg);
-
-    painter.end();
-
-    //ui->label->resize(fullImg3->width(),fullImg3->height());
-    //QPixmap pixmap=QPixmap::fromImage(*lastImg);
-    //ui->label->setPixmap(pixmap);
-
-    bool suc = lastImg->save(bmp1Path+"/P12L-RCL.bmp");
-
-    if(!suc)
+    for (int i=0; i<rectItemList.size(); i++)
     {
-        QMessageBox::information(this,tr("生成失败"),tr("生成失败"));
-        delete lastImg;
-        return;
+        connect(rectItemList[i], SIGNAL(sendRegionInfo(Region)), this, SLOT(showRegionInfo(Region)));
+    }
+
+    imageviewer->setItems(rectItemList);
+    imageviewer->initShow();
+    imageviewer->show();
+}
+
+void MainWindow::on_action_colorSet_triggered()
+{
+    colorDialog -> show();
+}
+
+void MainWindow::on_action_configFile_triggered()
+{
+    configFileDialog -> show();
+}
+
+void MainWindow::on_actionRegion_Info_triggered()
+{
+    if (ui->dockWidget->isHidden())
+    {
+        ui->dockWidget->show();
+
     }else
     {
-        QMessageBox::information(this,tr("生成成功"),tr("生成成功"));
-        delete lastImg;
-        return;
+        ui->dockWidget->hide();
     }
+}
+
+RectItem* MainWindow::createMyRectItem(Region region, QColor color, int x, int y, int w, int h)
+{
+    RectItem* rectItem = new RectItem();
+    rectItem->setRegion(region);
+
+    QPen pen;
+    pen.setColor(color);
+    pen.setWidth(0);
+    rectItem->setRect(x, y, w, h);
+    rectItem->setPen(pen);
+    rectItem->setBrush(QBrush(QColor(color)));
+    rectItem->setFlag(QGraphicsItem::ItemIsMovable);
+
+    return rectItem;
+}
+
+void MainWindow::showRegionInfo(Region region)
+{
+    ui->label_category->setText(region.category);
+    ui->label_dir->setText("DirH: "+ QString::number(region.dirH)+"\nDirV: "+ QString::number(region.dirV));
+    ui->label_index->setText(region.prefix+QString::number(region.indexStart)+region.suffix);
+    ui->label_color->setText("Channel_R: Red\nChannel_G: Yellow\nChannel_B: White");
 }

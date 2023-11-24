@@ -16,13 +16,27 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    colordialog.cpp \
+    configfiledialog.cpp \
+    imageviewer.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    readconfigfile.cpp \
+    rectitem.cpp \
+    rectscene.cpp
 
 HEADERS += \
-    mainwindow.h
+    colordialog.h \
+    configfiledialog.h \
+    imageviewer.h \
+    mainwindow.h \
+    readconfigfile.h \
+    rectitem.h \
+    rectscene.h
 
 FORMS += \
+    colordialog.ui \
+    configfiledialog.ui \
     mainwindow.ui
 
 # Default rules for deployment.

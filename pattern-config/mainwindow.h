@@ -5,8 +5,18 @@
 #include <QImage>
 #include <QMessageBox>
 #include <QPainter>
-#include <QFileDialog>
 #include <QDir>
+#include <QDebug>
+
+#include <QGraphicsRectItem>
+
+#include "readconfigfile.h"
+#include "imageviewer.h"
+#include "colordialog.h"
+#include "ui_colordialog.h"
+#include "configfiledialog.h"
+#include "ui_configfiledialog.h"
+#include "rectitem.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -21,15 +31,36 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_pushButton_clicked();
-    void showColor(QString colorFIleUrl);
+    void on_action_colorSet_triggered();
 
-    void on_pushButton_2_clicked();
+    void on_action_configFile_triggered();
+
+    void updateFileUrl(QString);
+
+    void updateColor(QColor);
+
+    void on_actionRegion_Info_triggered();
+
+    void showRegionInfo(Region);
 
 signals:
-    void sendColorFileUrl(QString colorFIleUrl);
 
 private:
     Ui::MainWindow *ui;
+
+    ReadConfigFile* readConfigFile;
+    ImageViewer* imageviewer;
+    ColorDialog* colorDialog;
+    ConfigFileDialog* configFileDialog;
+
+    QGraphicsRectItem* qGraphicsRectItem;
+    RectItem* rectItem;
+
+    QString m_fileUrl;
+    QColor m_color;
+    QList<RectItem*> rectItemList;
+
+    void updatePicture();
+    RectItem* createMyRectItem(Region , QColor, int x, int y, int w, int h);
 };
 #endif // MAINWINDOW_H
