@@ -12,8 +12,6 @@ RectItem::~RectItem()
 
 void RectItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    setFlag(QGraphicsItem::ItemIsMovable, false);
-    setFlag(QGraphicsItem::ItemIsSelectable,true);
     event->accept();
 
     emit sendRegionInfo(m_region);

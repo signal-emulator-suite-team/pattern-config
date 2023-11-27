@@ -48,6 +48,8 @@ signals:
 private:
     Ui::MainWindow *ui;
 
+    QString m_version = "V1.0";
+
     ReadConfigFile* readConfigFile;
     ImageViewer* imageviewer;
     ColorDialog* colorDialog;
@@ -57,7 +59,7 @@ private:
     RectItem* rectItem;
 
     QString m_fileUrl;
-    QColor m_color;
+    QColor m_color = QColor(191, 191, 191, 60);
     QList<RectItem*> rectItemList;
 
     void updatePicture();

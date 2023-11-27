@@ -7,7 +7,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    this->setWindowTitle("pattern-config - "+m_fileUrl+" - R:"+ QString::number(m_color.red())+",G:"+ QString::number(m_color.green())+",B:"+ QString::number(m_color.blue())+",A:"+ QString::number(m_color.alpha()));
+    this->setWindowTitle("pattern-config " + m_version + " - "+m_fileUrl+" - R:"+ QString::number(m_color.red())+",G:"+ QString::number(m_color.green())+",B:"+ QString::number(m_color.blue())+",A:"+ QString::number(m_color.alpha()));
     ui->dockWidget->setWindowTitle("Region Info");
     ui->label_category->setText("");
     ui->label_dir->setText("");
@@ -36,14 +36,14 @@ MainWindow::~MainWindow()
 void MainWindow::updateColor(QColor color)
 {
     m_color = color;
-    this->setWindowTitle("pattern-config - "+m_fileUrl+" - R:"+ QString::number(m_color.red())+",G:"+ QString::number(m_color.green())+",B:"+ QString::number(m_color.blue())+",A:"+ QString::number(m_color.alpha()));
+    this->setWindowTitle("pattern-config " + m_version + " - "+m_fileUrl+" - R:"+ QString::number(m_color.red())+",G:"+ QString::number(m_color.green())+",B:"+ QString::number(m_color.blue())+",A:"+ QString::number(m_color.alpha()));
     updatePicture();
 }
 
 void MainWindow::updateFileUrl(QString fileUrl)
 {
     m_fileUrl = fileUrl;
-    this->setWindowTitle("pattern-config - "+m_fileUrl+" - R:"+ QString::number(m_color.red())+",G:"+ QString::number(m_color.green())+",B:"+ QString::number(m_color.blue())+",A:"+ QString::number(m_color.alpha()));
+    this->setWindowTitle("pattern-config " + m_version + " - "+m_fileUrl+" - R:"+ QString::number(m_color.red())+",G:"+ QString::number(m_color.green())+",B:"+ QString::number(m_color.blue())+",A:"+ QString::number(m_color.alpha()));
     updatePicture();
 }
 
@@ -113,6 +113,9 @@ RectItem* MainWindow::createMyRectItem(Region region, QColor color, int x, int y
     rectItem->setPen(pen);
     rectItem->setBrush(QBrush(QColor(color)));
     rectItem->setFlag(QGraphicsItem::ItemIsMovable);
+
+    rectItem->setFlag(QGraphicsItem::ItemIsMovable, false);
+    rectItem->setFlag(QGraphicsItem::ItemIsSelectable,true);
 
     return rectItem;
 }

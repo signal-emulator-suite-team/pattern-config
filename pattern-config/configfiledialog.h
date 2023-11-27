@@ -6,7 +6,6 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-#include "global.h"
 #include "readconfigfile.h"
 
 namespace Ui {
@@ -31,8 +30,6 @@ private slots:
 
 private:
     QSettings *configIniWrite;
-    Global *global;
-
     QString m_fileUrl;
 
 signals:

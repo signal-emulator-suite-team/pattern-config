@@ -55,8 +55,6 @@ void ImageViewer::initShow()
     scene->update();
     this->resetTransform();
     this->setSceneRect(m_image.rect());
-
-    scale(ratio, ratio);
 }
 
 void ImageViewer::mousePressEvent(QMouseEvent *event)
@@ -98,6 +96,6 @@ void ImageViewer::keyPressEvent(QKeyEvent *event)
 void ImageViewer::wheelEvent(QWheelEvent *event)
 {
     int wheelValue = event->angleDelta().y();
-    ratio = (double)wheelValue / (double)1200 + 1;
+    double ratio = (double)wheelValue / (double)1200 + 1;
     scale(ratio, ratio);
 }
