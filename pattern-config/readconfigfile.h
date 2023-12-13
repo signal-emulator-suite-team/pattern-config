@@ -18,6 +18,7 @@ struct Region
     QString prefix;
     QString suffix;
     int indexStart;
+    int indexEnd;
     int roi[4];
 };
 

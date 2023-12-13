@@ -22,6 +22,14 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+struct Arrow
+{
+    QPoint pointStart;
+    QPoint pointEnd;
+    QColor color;
+    int penWidth;
+};
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -52,8 +60,8 @@ private:
 
     ReadConfigFile* readConfigFile;
     ImageViewer* imageviewer;
-    ColorDialog* colorDialog;
-    ConfigFileDialog* configFileDialog;
+    ColorDialog colorDialog;
+    ConfigFileDialog configFileDialog;
 
     QGraphicsRectItem* qGraphicsRectItem;
     RectItem* rectItem;
@@ -61,8 +69,13 @@ private:
     QString m_fileUrl;
     QColor m_color = QColor(191, 191, 191, 60);
     QList<RectItem*> rectItemList;
+    QList<Arrow> m_arrows;
 
     void updatePicture();
     RectItem* createMyRectItem(Region , QColor, int x, int y, int w, int h);
+    int getColoredDotsNum(QPixmap, int x, int y, int w, int h);
+    bool eventFilter(QObject *watched, QEvent *event);
+    void drawArrow();
+    void arrowInitial();
 };
 #endif // MAINWINDOW_H

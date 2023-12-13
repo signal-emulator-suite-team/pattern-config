@@ -40,6 +40,7 @@ private:
     QPointF centerAnchor;
     QPoint posAnchor;
     bool isMousePressed;
+    double m_ratio = 1;
 };
 
 #endif // IMAGEVIEWER_H
